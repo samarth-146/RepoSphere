@@ -5,9 +5,11 @@ const Add=require('./controllers/add');
 const Commit=require('./controllers/commit');
 const Push=require('./controllers/push');
 const Pull=require('./controllers/pull')
-const Revert=require('./controllers/revert');
+// const Revert=require('./controllers/revert');
+const server=require('./server');
 
 yargs(hideBin(process.argv)).command('init',"Initialise the repo",{},Init)
+.command('start','Start the server',{},server)
 .command('add <file>','Add a file',(yargs)=>{
     yargs.positional('file',{
         describe:"Added file",
@@ -26,10 +28,12 @@ yargs(hideBin(process.argv)).command('init',"Initialise the repo",{},Init)
 })
 .command('push','push a files',{},Push)
 .command('pull',"pull a files",{},Pull)
-.command('revert <Id>','Revert a file',(yargs)=>{
-    yargs.positional('Id',{
-        describe:"Revert",
-        type:String
-    })
-},Revert)
+// .command('revert <Id>','Revert a file',(yargs)=>{
+//     yargs.positional('Id',{
+//         describe:"Revert",
+//         type:String
+//     })
+// },(argv)=>{
+//     Revert(argv.Id);
+// })
 .demandCommand(1).parse()

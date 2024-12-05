@@ -1,6 +1,5 @@
 const AWS=require('aws-sdk');
 require('dotenv').config();
-console.log(process.env.SECRET_KEY)
 AWS.config.update({
     region: process.env.REGION,
     accessKeyId: process.env.ACCESS_KEY_ID,
