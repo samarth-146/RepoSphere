@@ -4,17 +4,20 @@ const {Schema}=mongoose;
 const repoSchema=new Schema({
     name:{
         type:String,
+        unique:true,
         required:true,
     },
     description:{
         type:String,
+        default:"",
     },
     content:[
         {
-            type:String
+            type:String,
+            default:[]
         }
     ],
-    user:{
+    owner:{
         type:Schema.Types.ObjectId,
         ref:"User",
         required:true
@@ -22,12 +25,14 @@ const repoSchema=new Schema({
     visibility:{
         type:String,
         enum:["private","public"],
+        default:"public",
         required:true,
     },
     issues:[
         {
             type:Schema.Types.ObjectId,
             ref:"Issue",
+            default:[],
         }
     ]
 });
