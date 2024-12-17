@@ -5,6 +5,9 @@ const dotenv = require('dotenv');
 const { Server } = require('socket.io');
 const http = require('http');
 const mainRouter=require('./routes/main');
+const cors=require('cors');
+
+app.use(cors());
 
 dotenv.config();
 

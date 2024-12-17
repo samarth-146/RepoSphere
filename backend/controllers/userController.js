@@ -5,6 +5,7 @@ const dotenv = require('dotenv');
 const bcrypt=require('bcrypt');
 
 
+
 dotenv.config();
 
 const getAllUsers = async (req, res) => {
@@ -27,7 +28,8 @@ const login = async (req, res) => {
             res.status(401).json({message:"Invalid Credentials"});
         }
         const token=jwt.sign({id:user._id},process.env.JWT_SECRET,{expiresIn:"1h"});
-        res.status(200).json({message:"Logged in successfully",user:user,token:token});
+        const userId=user._id;
+        res.status(200).json({message:"Logged in successfully",id:userId,token:token});
     }catch(e){
         console.error(e);
         res.status(500).json({message:"Internal Server Error"});
@@ -38,8 +40,11 @@ const signup = async (req, res) => {
         const { username, email, password } = req.body;
         const checkUsername = await User.findOne({ username });
         const checkEmail = await User.findOne({ email });
-        if (checkUsername || checkEmail) {
-            return res.status(403).json({ message: "Username or email already exist" });
+        if(checkUsername){
+            return res.status(400).json({ message: "Username already exist"});
+        }
+        if (checkEmail) {
+            return res.status(403).json({ message: "Email already exist" });
         }
         const newUser = new User({
             username: username,
@@ -48,7 +53,8 @@ const signup = async (req, res) => {
         });
         await newUser.save();
         const token = jwt.sign({ id: newUser._id }, process.env.JWT_SECRET, { expiresIn: "1h" });
-        res.status(201).json({ message: "User created successfully", token });
+        const id=newUser._id;
+        res.status(201).json({ message: "User created successfully", token,id });
     } catch (e) {
         res.status(500).json({ message: "Internal Server Error" });
     }

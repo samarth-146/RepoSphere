@@ -28,6 +28,10 @@ const createRepository = async (req, res) => {
         if (!user) {
             return res.status(400).json({ message: "User doesn't exist" });
         }
+        const existRepo=await Repository.findOne({name:name,owner:owner});
+        if(existRepo){
+            return res.status(400).json({message:"Repository name is already taken"});
+        }
         const newRepo = new Repository({
             name: name,
             description: description,
@@ -35,6 +39,8 @@ const createRepository = async (req, res) => {
             visibility: visibility,
         })
         const data = await newRepo.save();
+        user.repositories.push(data._id);
+        await user.save();
         res.status(201).json({ message: "Repository is created", data });
     } catch (e) {
         console.error(e);
@@ -45,7 +51,7 @@ const createRepository = async (req, res) => {
 //Get all repo for a user
 const userRepositories = async (req, res) => {
     try {
-        const userId = req.user;
+        const userId = req.params.uid;
         const repository = await Repository.find({ owner: userId }).populate("owner").populate("issues");
         if (!repository) {
             return res.status(404).json({ message: "No repositories found" })

@@ -4,7 +4,6 @@ const {Schema}=mongoose;
 const repoSchema=new Schema({
     name:{
         type:String,
-        unique:true,
         required:true,
     },
     description:{
@@ -36,6 +35,8 @@ const repoSchema=new Schema({
         }
     ]
 });
+
+repoSchema.index({ owner: 1, name: 1 }, { unique: true });
 
 const Repository=mongoose.model("Repository",repoSchema);
 
