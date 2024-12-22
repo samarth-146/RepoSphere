@@ -28,9 +28,9 @@ const createRepository = async (req, res) => {
         if (!user) {
             return res.status(400).json({ message: "User doesn't exist" });
         }
-        const existRepo=await Repository.findOne({name:name,owner:owner});
-        if(existRepo){
-            return res.status(400).json({message:"Repository name is already taken"});
+        const existRepo = await Repository.findOne({ name: name, owner: owner });
+        if (existRepo) {
+            return res.status(400).json({ message: "Repository name is already taken" });
         }
         const newRepo = new Repository({
             name: name,
@@ -78,10 +78,10 @@ const userRepository = async (req, res) => {
     }
 };
 
-const repoName = async(req, res) => {
+const repoName = async (req, res) => {
     try {
         const repoName = req.params.name;
-        const repository = await Repository.find({name:repoName}).populate("owner").populate("issues");
+        const repository = await Repository.find({ name: repoName }).populate("owner").populate("issues");
         if (!repository) {
             return res.status(404).json({ message: "No repository found" });
         }
@@ -92,6 +92,45 @@ const repoName = async(req, res) => {
     }
 }
 
+const starredRepository = async (req, res) => {
+    try {
+        const repoId = req.params.repoid;
+        const userId = req.params.userid;
+        const repo = await Repository.findById(repoId);
+        let user = await User.findById(userId);
+        if (!repo || !user) {
+            return res.status(404).json({ message: "Repository or User doesn't exist" });
+        }
+        if (user.starred_repositories.includes(repo._id)) {
+            return res.status(400).json({ message: "Repository already starred" });
+        }
+        user.starred_repositories.push(repo._id);
+        user = await user.save();
+        res.status(200).json(user);
+    } catch (e) {
+        console.error(e);
+        res.status(500).json({ message: "Internal Server Error" });
+    }
+};
+
+const removeStarredRepository = async (req, res) => {
+    try{
+        const repoId = req.params.repoid;
+        const userId = req.params.userid;
+        const repo = await Repository.findById(repoId);
+        let user = await User.findById(userId);
+        if (!repo || !user) {
+            return res.status(404).json({ message: "Repository or User doesn't exist" });
+        }
+        user.starred_repositories=user.starred_repositories.filter((ele)=>ele._id!=repoId);
+        await user.save();
+        res.status(200).json("Repository is unmarked");
+    }catch(e){
+        console.error(e);
+        res.status(500).json({ message: "Internal Server Error" });
+    }
+};
+
 const toggleVisibility = async (req, res) => {
     try {
         const repoId = req.params.id;
@@ -99,13 +138,13 @@ const toggleVisibility = async (req, res) => {
         if (!repository) {
             return res.status(404).json({ message: "No repository found" });
         }
-        const visibility=repository.visibility;
+        const visibility = repository.visibility;
         let updatedToggle;
-        if(visibility=="private"){
-            updatedToggle = await Repository.updateOne({ _id: repoId }, { visibility:"public"});
+        if (visibility == "private") {
+            updatedToggle = await Repository.updateOne({ _id: repoId }, { visibility: "public" });
         }
-        else{
-            updatedToggle = await Repository.updateOne({ _id: repoId }, { visibility:"private"});
+        else {
+            updatedToggle = await Repository.updateOne({ _id: repoId }, { visibility: "private" });
         }
         res.status(200).json({ message: "Visibility changed successfully" });
     } catch (e) {
@@ -138,4 +177,6 @@ module.exports = {
     deleteRepository,
     repoName,
     createRepository,
+    starredRepository,
+    removeStarredRepository
 };

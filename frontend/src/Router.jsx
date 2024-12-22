@@ -7,6 +7,7 @@ import { useEffect } from 'react';
 import CreateRepository from './components/Repository/createRepository';
 import Profile from './components/profile/Profile';
 import Edit_Form from './components/profile/edit_form';
+import StarredRepository from './components/Repository/StarredRepository';
 
 const ProjectRouter=()=>{
     const navigate=useNavigate();
@@ -49,6 +50,9 @@ const ProjectRouter=()=>{
         {
             path:"/edit",
             element:<Edit_Form/>
+        },{
+            path:"/starred",
+            element:<StarredRepository/>
         }
     ]);
     return route;

@@ -104,6 +104,21 @@ const updateProfile = async(req, res) => {
         res.status(500).json({ message: "Internal Server Error"});
     }
 }
+
+const getStarredRepository=async(req,res)=>{
+    try{
+        const userId=req.params.id;
+        const user=await User.findById(userId).populate("starred_repositories");
+        if(!user){
+            return res.status(404).json("User doesn't exist");
+        }
+        res.status(200).json(user.starred_repositories);
+    }catch(e){
+        console.error(e);
+        res.status(500).json({ message: "Internal Server Error"});
+    }
+};
+
 const deleteProfile = async(req, res) => {
     try{
         const userId=req.params.id;
@@ -123,5 +138,6 @@ module.exports = {
     signup,
     getProfile,
     updateProfile,
-    deleteProfile
+    deleteProfile,
+    getStarredRepository
 }

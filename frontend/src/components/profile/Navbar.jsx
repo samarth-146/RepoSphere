@@ -1,4 +1,4 @@
-import { MapPin, LinkIcon, Twitter, Users, Home, Star, Menu } from 'lucide-react';
+import { Home, Star } from 'lucide-react';
 
 const Navbar = () => {
     return (
@@ -8,12 +8,11 @@ const Navbar = () => {
             <a href="/" className="text-white font-semibold text-lg">RepoSphere</a>
           </div>
           <div className="hidden md:flex space-x-6">
-              
             <a href="/" className="text-white hover:text-gray-300 flex items-center">
               <Home size={18} className="mr-1" />
               Home
             </a>
-            <a href="#" className="text-white hover:text-gray-300 flex items-center">
+            <a href="/starred" className="text-white hover:text-gray-300 flex items-center">
               <Star size={18} className="mr-1" />
               Starred
             </a>

@@ -39,12 +39,12 @@ const server = () => {
 
 
     });
-    const db = mongoose.connection;
+    // const db = mongoose.connection;
 
     //All the initial operations will be done here like fetch user,repo,issue.
-    db.once("open", async () => {
-        console.log("CRUD");
-    });
+    // db.once("open", async () => {
+    //     console.log("CRUD");
+    // });
 
     app.use('/',mainRouter);
     main().catch(err => console.log(err));
