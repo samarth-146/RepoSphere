@@ -17,6 +17,16 @@ const userSchema=new Schema({
         type:String,
         required:true,
     },
+    image:{
+        url:{
+            type:String,
+            default:""
+        },
+        filename:{
+            type:String,
+            default:"",
+        },
+    },
     repositories:[
         {
             type:Schema.Types.ObjectId,

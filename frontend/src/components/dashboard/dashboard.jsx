@@ -17,6 +17,10 @@ const Dashboard = () => {
             const response=await axios.get(`http://localhost:8080/repo/all/${userId}`);
             setRepository(response.data);
         };
+        // const fetchProfilePic=async()=>{
+        //     const userId=localStorage.getItem("userId");
+        //     const respons
+        // }
         const displayAllRepo=async()=>{
             const response=await axios.get('http://localhost:8080/repo/all');
             const publicRepo=response.data.filter((ele)=>ele.visibility=='public');
