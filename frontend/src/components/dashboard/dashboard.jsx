@@ -3,7 +3,6 @@ import Navbar from './Navbar';
 import {Search} from 'lucide-react';
 import Left_Sidebar from './left_sidebar';
 import Main from './main';
-import Right_Sidebar from './right_sidebar';
 import axios from 'axios';
 
 
@@ -36,7 +35,6 @@ const Dashboard = () => {
             <div className="flex">
                 <Left_Sidebar recentRepos={repository}/>
                 <Main mainRepos={globalRepository}/>
-                <Right_Sidebar/>
             </div>
         </div>
     );

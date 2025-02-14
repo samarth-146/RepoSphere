@@ -11,7 +11,7 @@ const Navbar = ({ user }) => {
           <a href="/" className="text-white font-semibold text-lg">RepoSphere</a>
         </div>
         <div className="hidden md:flex space-x-4">
-          <a href="#" className="text-white hover:text-gray-300 flex items-center">
+          <a href="/" className="text-white hover:text-gray-300 flex items-center">
             <Home size={18} className="mr-1" />
             Home
           </a>

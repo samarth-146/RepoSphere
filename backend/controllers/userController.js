@@ -5,6 +5,7 @@ const dotenv = require('dotenv');
 const bcrypt = require('bcrypt');
 const multer = require('multer');
 const { storage } = require('../config/cloudinary-config');
+const { addToBlackList } = require('../blacklist');
 const upload = multer({ storage });
 
 
@@ -64,6 +65,14 @@ const signup = async (req, res) => {
     }
 }
 
+const logout=(req,res)=>{
+    const token=req.header('Authorization')?.split(' ')[1];
+    if(!token){
+        return res.status(400).json({message:"No token is provided"});
+    }
+    addToBlackList(token);
+    res.status(200).json({message:"Logged out successfully"});
+}
 
 const addProfilePic = async (req, res) => {
     try {
@@ -173,5 +182,6 @@ module.exports = {
     deleteProfile,
     getStarredRepository,
     addProfilePic,
-    getprofilePic
+    getprofilePic,
+    logout
 }

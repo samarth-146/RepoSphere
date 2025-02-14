@@ -1,5 +1,5 @@
 import axios from 'axios';
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 
 const CreateRepository = () => {
@@ -7,6 +7,17 @@ const CreateRepository = () => {
   const [name, setName] = useState('');
   const [description, setDescription] = useState('');
   let [visibility, setVisibility] = useState(true);
+  const [userName,setUserName]=useState('');
+
+  useEffect(()=>{
+    const fetchProfile=async()=>{
+      const userId=localStorage.getItem('userId');
+      const user=await axios.get(`http://localhost:8080/user/profile/${userId}`);
+      // console.log(user.data.username);
+      setUserName(user.data.username);
+    }
+    fetchProfile();
+  },[])
 
   const handleSubmit = async(e) => {
     e.preventDefault();
@@ -40,7 +51,7 @@ const CreateRepository = () => {
                   type="button"
                   className="bg-[#21262d] text-white px-3 py-1.5 rounded-md border border-gray-700 flex items-center space-x-2"
                 >
-                  <span>samarth-146</span>
+                  <span>{userName}</span>
                 </button>
               </div>
               <span className="text-gray-500">/</span>
@@ -90,7 +101,7 @@ const CreateRepository = () => {
                     <span>Public</span>
                   </label>
                   <p className="text-sm text-gray-400">
-                    Anyone on the internet can see this repository. You choose who can commit.
+                    Anyone on the internet can see this repository
                   </p>
                 </div>
               </div>
@@ -113,7 +124,7 @@ const CreateRepository = () => {
                     <span>Private</span>
                   </label>
                   <p className="text-sm text-gray-400">
-                    You choose who can see and commit to this repository.
+                    Only you can see this repository
                   </p>
                 </div>
               </div>

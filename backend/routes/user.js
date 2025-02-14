@@ -9,6 +9,7 @@ const userController=require('../controllers/userController');
 userRouter.get('/alluser',userController.getAllUsers);
 userRouter.post('/signin',userController.login);
 userRouter.post('/signup',userController.signup);
+userRouter.post('/logout',userController.logout);
 userRouter.post('/profile/:id',upload.single('image'),userController.addProfilePic);
 userRouter.get('/profile/:id',userController.getProfile);
 userRouter.get('/profilepic/:id',userController.getprofilePic);

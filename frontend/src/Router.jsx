@@ -8,6 +8,8 @@ import CreateRepository from './components/Repository/createRepository';
 import Profile from './components/profile/Profile';
 import Edit_Form from './components/profile/edit_form';
 import StarredRepository from './components/Repository/StarredRepository';
+import RepoDashboard from './components/Repository/Dashboard';
+import FileViewer from './components/Repository/FileViewer';
 
 const ProjectRouter=()=>{
     const navigate=useNavigate();
@@ -53,6 +55,13 @@ const ProjectRouter=()=>{
         },{
             path:"/starred",
             element:<StarredRepository/>
+        },
+        {
+            path:"/repo/:id",
+            element:<RepoDashboard/>
+        },{
+            path:"/repo/:id/:filename",
+            element:<FileViewer/>
         }
     ]);
     return route;
