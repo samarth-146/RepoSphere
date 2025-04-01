@@ -5,9 +5,10 @@ const { S3, S3_BUCKET } = require('../config/aws-config');
 async function Push() {
     const repoPath = path.resolve(process.cwd(), '.Sphere');
     const commitsPath = path.join(repoPath, 'commits');
+    const pushedCommitsPath = path.join(repoPath, 'pushed_commits.json');
 
     try {
-        // Load repository config to get email and repository name
+        // Load repository config
         const config = JSON.parse(await fs.readFile(path.join(repoPath, 'config.json')));
         const { email, repository } = config;
 
@@ -16,49 +17,55 @@ async function Push() {
             return;
         }
 
-        // Get the list of commit directories
-        const commitDirs = await fs.readdir(commitsPath);
+        // Get all commit directories
+        let commitDirs = await fs.readdir(commitsPath);
         if (commitDirs.length === 0) {
             console.log('No commits found to push.');
             return;
         }
 
-        // Fetch modification times and sort commits based on the latest modified folder
-        const commitDirsWithStats = await Promise.all(
-            commitDirs.map(async (dir) => {
-                const fullPath = path.join(commitsPath, dir);
-                const stats = await fs.stat(fullPath);
-                return { dir, mtime: stats.mtime };
-            })
-        );
+        // Load previously pushed commits
+        let pushedCommits = new Set();
+        try {
+            const pushedCommitsData = await fs.readFile(pushedCommitsPath, 'utf-8');
+            pushedCommits = new Set(JSON.parse(pushedCommitsData));
+        } catch (err) {
+            // If file doesn't exist, assume no commits were pushed before
+        }
 
-        // Sort in descending order (latest modified first)
-        commitDirsWithStats.sort((a, b) => b.mtime - a.mtime);
+        // Filter out already pushed commits
+        commitDirs = commitDirs.filter(commit => !pushedCommits.has(commit));
 
-        // Pick the latest commit based on modification time
-        const latestCommit = commitDirsWithStats[0]?.dir;
-        if (!latestCommit) {
-            console.log('No valid commit found to push.');
+        if (commitDirs.length === 0) {
+            console.log('No new commits to push.');
             return;
         }
 
-        const latestCommitPath = path.join(commitsPath, latestCommit);
-        const files = await fs.readdir(latestCommitPath);
+        for (const commitId of commitDirs) {
+            const commitPath = path.join(commitsPath, commitId);
+            const files = await fs.readdir(commitPath);
 
-        for (const file of files) {
-            const filePath = path.join(latestCommitPath, file);
-            const fileContent = await fs.readFile(filePath);
+            for (const file of files) {
+                const filePath = path.join(commitPath, file);
+                const fileContent = await fs.readFile(filePath);
 
-            const params = {
-                Bucket: S3_BUCKET,
-                Key: `${email}/${repository}/commits/${latestCommit}/${file}`,
-                Body: fileContent,
-            };
+                const params = {
+                    Bucket: S3_BUCKET,
+                    Key: `${email}/${repository}/commits/${commitId}/${file}`,
+                    Body: fileContent,
+                };
 
-            await S3.upload(params).promise();
+                await S3.upload(params).promise();
+            }
+
+            // Mark this commit as pushed
+            pushedCommits.add(commitId);
         }
 
-        console.log(`Successfully pushed latest commit '${latestCommit}' for repository '${repository}'.`);
+        // Save the updated pushed commits list
+        await fs.writeFile(pushedCommitsPath, JSON.stringify([...pushedCommits]));
+
+        console.log('Successfully pushed all new commits.');
     } catch (e) {
         console.error('Error while pushing the files:', e);
     }

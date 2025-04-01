@@ -5,7 +5,7 @@ import axios from 'axios';
 import { useAuth } from '../../authContext';
 import { useNavigate } from 'react-router-dom';
 import { Link } from 'react-router-dom';
-import { ToastContainer, toast } from 'react-toastify';
+import { toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import "./auth.css";
 
@@ -31,6 +31,7 @@ const Signin = () => {
             setCurrentUser(userId);
             setEmail("");
             setPassword("");
+            toast.success("Logged in successfully");
             navigate('/');
         }catch(e){
             if(e.response){
@@ -113,7 +114,6 @@ const Signin = () => {
                     <Link to="/signup" className="text-blue-500 hover:text-blue-700 font-bold text-sm"> Sign Up</Link>
                 </p>
             </div>
-            <ToastContainer/>
         </div>
     )
 

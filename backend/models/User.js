@@ -39,18 +39,6 @@ const userSchema=new Schema({
             ref:"Repository",
         }
     ],
-    followed_users:[
-        {
-            type:Schema.Types.ObjectId,
-            ref:"User"
-        }
-    ],
-    issues:[
-        {
-            type:Schema.Types.ObjectId,
-            ref:"Issue",
-        }
-    ]
 });
 
 userSchema.pre('save', async function (next) {

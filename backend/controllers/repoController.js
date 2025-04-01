@@ -6,7 +6,7 @@ const {S3,S3_BUCKET}=require('../config/aws-config');
 
 const getAllRepositories = async (req, res) => {
     try {
-        const repositories = await Repository.find().populate("owner").populate("issues");
+        const repositories = await Repository.find().populate("owner");
         if (!repositories)
             return res.status(404).json({ message: "No results found" });
         res.status(200).json(repositories);
@@ -85,7 +85,6 @@ const getRepoContent = async (req, res) => {
             }
         }
 
-        // Convert latestFiles map to an array and return only the latest version of each file
         res.json([...latestFiles.values()]);
     } catch (e) {
         console.error(e);
@@ -110,7 +109,6 @@ const fetchFileContent = async (req, res) => {
             return res.status(404).json({ message: "No commits found" });
         }
 
-        // 🔥 Group Files by commit id
         const commitFolders = new Map();
         for (const item of data.Contents) {
             const parts = item.Key.split('/');
@@ -123,14 +121,12 @@ const fetchFileContent = async (req, res) => {
         const latestCommitId = [...commitFolders.keys()].pop();
         const latestCommitFiles = commitFolders.get(latestCommitId);
 
-        // 🔥 Find the requested file in the latest commit
         const fileObject = latestCommitFiles.find(file => file.Key.endsWith(`/${fileName}`));
 
         if (!fileObject) {
             return res.status(404).json({ message: "File not found in the latest commit" });
         }
 
-        // 🔥 Fetch file content
         const fileParams = { Bucket: S3_BUCKET, Key: fileObject.Key };
         const fileData = await S3.getObject(fileParams).promise();
         const fileContent = fileData.Body.toString('utf-8');
@@ -147,7 +143,7 @@ const createRepository = async (req, res) => {
     try {
         const { name, description, owner, visibility } = req.body;
         if (!name) {
-            return res.status(400).json({ message: "Name is required" });
+            return res.status(400).json({ message: "Repository name is required" });
         }
         if (!owner) {
             return res.status(400).json({ message: "User id is required" });
@@ -180,7 +176,7 @@ const createRepository = async (req, res) => {
 const userRepositories = async (req, res) => {
     try {
         const userId = req.params.uid;
-        const repository = await Repository.find({ owner: userId }).populate("owner").populate("issues");
+        const repository = await Repository.find({ owner: userId }).populate("owner");
         if (!repository) {
             return res.status(404).json({ message: "No repositories found" })
         }
@@ -195,7 +191,7 @@ const userRepositories = async (req, res) => {
 const userRepository = async (req, res) => {
     try {
         const repoId = req.params.id;
-        const repository = await Repository.findById(repoId).populate("owner").populate("issues");
+        const repository = await Repository.findById(repoId).populate("owner");
         if (!repository) {
             return res.status(404).json({ message: "No repository found" });
         }
@@ -209,7 +205,7 @@ const userRepository = async (req, res) => {
 const repoName = async (req, res) => {
     try {
         const repoName = req.params.name;
-        const repository = await Repository.find({ name: repoName }).populate("owner").populate("issues");
+        const repository = await Repository.find({ name: repoName }).populate("owner");
         if (!repository) {
             return res.status(404).json({ message: "No repository found" });
         }
@@ -284,18 +280,28 @@ const toggleVisibility = async (req, res) => {
 const deleteRepository = async (req, res) => {
     try {
         const repoId = req.params.id;
+
         const repository = await Repository.findById(repoId);
         if (!repository) {
             return res.status(404).json({ message: "No repository found" });
         }
-        const deleted = await Repository.deleteOne({ _id: repoId });
-        res.status(200).json({ message: "Repository is deleted successfully" });
+
+        const updatedUsers = await User.updateMany(
+            { repositories: repoId },
+            { $pull: { repositories: repoId, starred_repositories: repoId } }
+        );
+
+        console.log("Updated Users:", updatedUsers);
+
+        await Repository.deleteOne({ _id: repoId });
+
+        res.status(200).json({ message: "Repository deleted successfully" });
     } catch (e) {
         console.error(e);
         res.status(500).json({ message: "Internal Server Error" });
     }
-
 };
+
 
 module.exports = {
     getAllRepositories,

@@ -1,41 +1,60 @@
 import axios from 'axios';
 import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { toast } from 'react-toastify';
+
 
 const CreateRepository = () => {
-  const navigate=useNavigate();
+  const navigate = useNavigate();
   const [name, setName] = useState('');
   const [description, setDescription] = useState('');
   let [visibility, setVisibility] = useState(true);
-  const [userName,setUserName]=useState('');
+  const [userName, setUserName] = useState('');
 
-  useEffect(()=>{
-    const fetchProfile=async()=>{
-      const userId=localStorage.getItem('userId');
-      const user=await axios.get(`http://localhost:8080/user/profile/${userId}`);
+  useEffect(() => {
+    const fetchProfile = async () => {
+      const userId = localStorage.getItem('userId');
+      const user = await axios.get(`http://localhost:8080/user/profile/${userId}`);
       // console.log(user.data.username);
       setUserName(user.data.username);
     }
     fetchProfile();
-  },[])
+  }, [])
 
-  const handleSubmit = async(e) => {
-    e.preventDefault();
-    console.log({ name, description, visibility });
-    const userId=localStorage.getItem("userId");
-    if(visibility){
-      visibility='public';
+  const handleSubmit = async (e) => {
+    try {
+      e.preventDefault();
+      console.log({ name, description, visibility });
+      const userId = localStorage.getItem("userId");
+      if (visibility) {
+        visibility = 'public';
+      }
+      else {
+        visibility = 'private';
+      }
+      const response = await axios.post('http://localhost:8080/repo', {
+        name,
+        description,
+        owner: userId,
+        visibility
+      });
+      toast.success("Repository created successfully");
+      navigate('/');
+    } catch (e) {
+      if(e.response){
+        const {status}=e.response;
+        const message=e.response.data.message;
+        if(status==400){
+          toast.error(`${message}`);
+        }
+        else if(status==404){
+          toast.error(`${message}`);
+        }
+        else{
+          toast.error("Internal Server Error");
+        }
+      }
     }
-    else{
-      visibility='private';
-    }
-    const response=await axios.post('http://localhost:8080/repo',{
-      name,
-      description,
-      owner:userId,
-      visibility
-    });
-    navigate('/');
   };
 
   return (
@@ -57,7 +76,6 @@ const CreateRepository = () => {
               <span className="text-gray-500">/</span>
               <input
                 type="text"
-                required
                 className="flex-1 bg-[#0d1117] border border-gray-700 rounded-md px-3 py-1.5 text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                 placeholder="Repository name"
                 value={name}

@@ -16,13 +16,18 @@ async function Commit(message) {
 
         // Get all files in the staging area
         const files = await fs.readdir(stagingPath);
-        console.log('Staging files:', files);
+        if (files.length === 0) {
+            console.log("No files in staging area to commit.");
+            return;
+        }
+        console.log('Committing files:', files);
 
         for (let file of files) {
             const filePath = path.join(stagingPath, file);
+            const commitFilePath = path.join(idPath, file);
 
-            // Copy the file to the commit directory
-            await fs.copyFile(filePath, path.join(idPath, file));
+            // Move (not just copy) the file from staging to commit directory
+            await fs.rename(filePath, commitFilePath);
         }
 
         // Write the commit metadata

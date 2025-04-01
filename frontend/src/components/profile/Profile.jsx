@@ -32,7 +32,7 @@ const Profile = () => {
             <div className="md:w-1/3 mb-4 md:mb-0">
               <img
                 src={user?.image?.url || "default-avatar.png"}
-                alt={`${user.name}'s image`}
+                alt="No Image Found"
                 className="w-64 h-64 rounded-full border-4 border-[#30363d]"
               />
               <div className="mt-4 space-y-2">

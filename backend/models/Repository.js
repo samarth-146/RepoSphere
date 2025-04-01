@@ -10,12 +10,6 @@ const repoSchema=new Schema({
         type:String,
         default:"",
     },
-    content:[
-        {
-            type:String,
-            default:[]
-        }
-    ],
     owner:{
         type:Schema.Types.ObjectId,
         ref:"User",
@@ -27,13 +21,6 @@ const repoSchema=new Schema({
         default:"public",
         required:true,
     },
-    issues:[
-        {
-            type:Schema.Types.ObjectId,
-            ref:"Issue",
-            default:[],
-        }
-    ]
 });
 
 repoSchema.index({ owner: 1, name: 1 }, { unique: true });
