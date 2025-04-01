@@ -9,7 +9,7 @@ import Edit_Form from './components/profile/edit_form';
 import StarredRepository from './components/Repository/StarredRepository';
 import RepoDashboard from './components/Repository/Dashboard';
 import FileViewer from './components/Repository/FileViewer';
-import CreateRepository from './components/Repository/createRepository';
+import CreateRepository from './components/Repository/CreateRepository';
 
 const ProjectRouter=()=>{
     const navigate=useNavigate();
