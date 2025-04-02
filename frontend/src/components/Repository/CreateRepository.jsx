@@ -14,7 +14,7 @@ const CreateRepository = () => {
   useEffect(() => {
     const fetchProfile = async () => {
       const userId = localStorage.getItem('userId');
-      const user = await axios.get(`http://localhost:8080/user/profile/${userId}`);
+      const user = await axios.get(`13.234.31.127:8080/user/profile/${userId}`);
       // console.log(user.data.username);
       setUserName(user.data.username);
     }
@@ -32,7 +32,7 @@ const CreateRepository = () => {
       else {
         visibility = 'private';
       }
-      const response = await axios.post('http://localhost:8080/repo', {
+      const response = await axios.post('13.234.31.127:8080/repo', {
         name,
         description,
         owner: userId,

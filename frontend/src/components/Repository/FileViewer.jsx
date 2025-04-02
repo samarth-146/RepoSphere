@@ -9,7 +9,7 @@ const FileViewer = () => {
     useEffect(()=>{
         const fetchFileContent=async()=>{
             const userId=localStorage.getItem('userId');
-            const content=await axios.get(`http://localhost:8080/repo/${userId}/${id}/${filename}`);
+            const content=await axios.get(`13.234.31.127:8080/repo/${userId}/${id}/${filename}`);
             setFileName(content.data.fileName);
             setFileContent(content.data.content);
         };

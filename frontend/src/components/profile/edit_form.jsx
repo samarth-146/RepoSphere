@@ -30,7 +30,7 @@ const Edit_Form = () => {
     useEffect(() => {
         const fetchUser = async () => {
             const userId = localStorage.getItem("userId")
-            const response = await axios.get(`http://localhost:8080/user/profile/${userId}`)
+            const response = await axios.get(`13.234.31.127:8080/user/profile/${userId}`)
             setUser(response.data)
             setEmail(response.data.email)
         }
@@ -45,7 +45,7 @@ const Edit_Form = () => {
                 password: password,
             }
             const userId = localStorage.getItem("userId")
-            const response = await axios.put(`http://localhost:8080/user/${userId}`, data)
+            const response = await axios.put(`13.234.31.127:8080/user/${userId}`, data)
             setEmail("")
             setPassword("")
             toast.success("Profile updated successfully", { position: "top-right" })

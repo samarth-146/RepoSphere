@@ -23,7 +23,7 @@ const Signin = () => {
                 email:email,
                 password:password,
             };
-            const response=await axios.post('http://localhost:8080/user/signin',data);
+            const response=await axios.post('13.234.31.127:8080/user/signin',data);
             const token=response.data.token;
             const userId=response.data.id;
             localStorage.setItem("token",token);

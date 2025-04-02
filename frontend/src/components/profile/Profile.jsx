@@ -11,7 +11,7 @@ const Profile = () => {
     const fetchUser = async () => {
       try {
         const userId = localStorage.getItem("userId");
-        const response = await axios.get(`http://localhost:8080/user/profile/${userId}`);
+        const response = await axios.get(`13.234.31.127:8080/user/profile/${userId}`);
         setUser(response.data);
 
       } catch (e) {
@@ -53,7 +53,7 @@ const Profile = () => {
                     try {
                       const userId = localStorage.getItem('userId');
                       const response = await axios.post(
-                        `http://localhost:8080/user/profile/${userId}`,
+                        `13.234.31.127:8080/user/profile/${userId}`,
                         formData,
                         {
                           headers: {

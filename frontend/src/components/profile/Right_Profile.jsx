@@ -10,7 +10,7 @@ const Right_Profile = ({ user }) => {
     const handleLogout=async()=>{
         try{
             const token=localStorage.getItem('token');
-            await axios.post('http://localhost:8080/user/logout', {}, {
+            await axios.post('13.234.31.127:8080/user/logout', {}, {
                 headers: { Authorization: `Bearer ${token}` },
                 withCredentials: true, 
             });

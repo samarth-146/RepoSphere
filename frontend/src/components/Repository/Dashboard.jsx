@@ -18,7 +18,7 @@ const RepoDashboard = () => {
     useEffect(() => {
         const fetchRepository = async () => {
             try {
-                const repo = await axios.get(`http://localhost:8080/repo/${id}`)
+                const repo = await axios.get(`13.234.31.127:8080/repo/${id}`)
                 setRepository(repo.data)
                 const userId = localStorage.getItem('userId');
                 if (repo.data.owner._id == userId) {
@@ -32,7 +32,7 @@ const RepoDashboard = () => {
         const fetchFiles = async () => {
             try {
                 const userId = localStorage.getItem("userId")
-                const response = await axios.get(`http://localhost:8080/repo/files/${userId}/${id}`)
+                const response = await axios.get(`13.234.31.127:8080/repo/files/${userId}/${id}`)
                 setFiles(response.data)
             } catch (error) {
                 toast.error("Failed to fetch files")
@@ -42,7 +42,7 @@ const RepoDashboard = () => {
         const fetchProfile = async () => {
             try {
                 const userId = localStorage.getItem("userId")
-                const user = await axios.get(`http://localhost:8080/user/profile/${userId}`)
+                const user = await axios.get(`13.234.31.127:8080/user/profile/${userId}`)
                 setProfile(user.data.username)
             } catch (error) {
                 toast.error("Failed to fetch profile")
@@ -58,7 +58,7 @@ const RepoDashboard = () => {
         try {
             const userId = localStorage.getItem("userId")
             if (userId) {
-                await axios.delete(`http://localhost:8080/repo/${id}`);
+                await axios.delete(`13.234.31.127:8080/repo/${id}`);
                 toast.success("Repository deleted successfully");
                 navigate("/");
             }

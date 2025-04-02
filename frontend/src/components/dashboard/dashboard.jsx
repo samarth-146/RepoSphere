@@ -13,7 +13,7 @@ const Dashboard = () => {
     useEffect(()=>{
         const displayUserRepo=async()=>{
             const userId=localStorage.getItem("userId");
-            const response=await axios.get(`http://localhost:8080/repo/all/${userId}`);
+            const response=await axios.get(`13.234.31.127:8080/repo/all/${userId}`);
             setRepository(response.data);
         };
         // const fetchProfilePic=async()=>{
@@ -21,7 +21,7 @@ const Dashboard = () => {
         //     const respons
         // }
         const displayAllRepo=async()=>{
-            const response=await axios.get('http://localhost:8080/repo/all');
+            const response=await axios.get('13.234.31.127:8080/repo/all');
             const publicRepo=response.data.filter((ele)=>ele.visibility=='public');
             setGlobalRepository(publicRepo);
         };

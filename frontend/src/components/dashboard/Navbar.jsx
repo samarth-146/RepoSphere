@@ -10,7 +10,7 @@ const Navbar = () => {
     useEffect(()=>{
         const fetchProfilePic=async()=>{
             const userId=localStorage.getItem('userId');
-            const response=await axios.get(`http://localhost:8080/user/profilepic/${userId}`);
+            const response=await axios.get(`13.234.31.127:8080/user/profilepic/${userId}`);
             setProfile(response.data);
         }
         fetchProfilePic();

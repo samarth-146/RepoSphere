@@ -9,7 +9,7 @@ const Main = () => {
         const fetchStarredRepositories = async () => {
             try {
                 const userId = localStorage.getItem("userId");
-                const response = await axios.get(`http://localhost:8080/user/starred/${userId}`);
+                const response = await axios.get(`13.234.31.127:8080/user/starred/${userId}`);
                 console.log(response.data);
                 if (response.status === 200) {
                     setStarredRepos(response.data);
