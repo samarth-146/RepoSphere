@@ -13,7 +13,7 @@ const Main = ({ mainRepos }) => {
   useEffect(() => {
     const fetchStarredRepositories = async () => {
       try {
-        const response = await axios.get(`http://localhost:8080/user/starred/${userId}`)
+        const response = await axios.get(`https://reposphere.onrender.com/user/starred/${userId}`)
         if (response.status === 200) {
           const starredRepoIds = response.data.map((ele) => ele._id)
           setStarredRepos(starredRepoIds)
@@ -30,7 +30,7 @@ const Main = ({ mainRepos }) => {
   const handleStarClick = async (repoId) => {
     try {
       if (starredRepos.includes(repoId)) {
-        const response = await axios.delete(`http://localhost:8080/starred/${repoId}/${userId}`)
+        const response = await axios.delete(`https://reposphere.onrender.com/starred/${repoId}/${userId}`)
         if (response.status === 200) {
           setStarredRepos((prev) => prev.filter((id) => id !== repoId))
           toast.success("Repository unmarked", { position: "top-right" })
@@ -38,7 +38,7 @@ const Main = ({ mainRepos }) => {
           console.error(`Failed to unstar repository with id ${repoId}`)
         }
       } else {
-        const response = await axios.post(`http://localhost:8080/starred/${repoId}/${userId}`)
+        const response = await axios.post(`https://reposphere.onrender.com/starred/${repoId}/${userId}`)
         if (response.status === 200) {
           setStarredRepos((prev) => [...prev, repoId])
           toast.success("Repository starred successfully", { position: "top-right" })

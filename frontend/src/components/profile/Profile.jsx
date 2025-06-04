@@ -15,7 +15,7 @@ const Profile = () => {
     const fetchUser = async () => {
       try {
         const userId = localStorage.getItem("userId")
-        const response = await axios.get(`http://localhost:8080/user/profile/${userId}`)
+        const response = await axios.get(`https://reposphere.onrender.com/user/profile/${userId}`)
         setUser(response.data)
       } catch (e) {
         toast.error("Something went wrong")
@@ -40,14 +40,14 @@ const Profile = () => {
 
     try {
       const userId = localStorage.getItem("userId")
-      await axios.post(`http://localhost:8080/user/profile/${userId}`, formData, {
+      await axios.post(`https://reposphere.onrender.com/user/profile/${userId}`, formData, {
         headers: {
           "Content-Type": "multipart/form-data",
         },
       })
       toast.success("Image uploaded successfully!")
       // Refresh user data
-      const response = await axios.get(`http://localhost:8080/user/profile/${userId}`)
+      const response = await axios.get(`https://reposphere.onrender.com/user/profile/${userId}`)
       setUser(response.data)
     } catch (error) {
       toast.error("Failed to upload image")

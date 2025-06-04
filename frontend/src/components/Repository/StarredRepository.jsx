@@ -16,7 +16,7 @@ const StarredRepos = () => {
       setIsLoading(true)
       try {
         const userId = localStorage.getItem("userId")
-        const response = await axios.get(`http://localhost:8080/user/starred/${userId}`)
+        const response = await axios.get(`https://reposphere.onrender.com/user/starred/${userId}`)
         if (response.status === 200) {
           setStarredRepos(response.data)
         } else {
@@ -35,7 +35,7 @@ const StarredRepos = () => {
   const handleUnstar = async (repoId) => {
     try {
       const userId = localStorage.getItem("userId")
-      const response = await axios.delete(`http://localhost:8080/starred/${repoId}/${userId}`)
+      const response = await axios.delete(`https://reposphere.onrender.com/starred/${repoId}/${userId}`)
       if (response.status === 200) {
         setStarredRepos((prev) => prev.filter((repo) => repo._id !== repoId))
         toast.success("Repository unstarred successfully")

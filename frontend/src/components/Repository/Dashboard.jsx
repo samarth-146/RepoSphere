@@ -22,7 +22,7 @@ const RepoDashboard = () => {
       setIsLoading(true)
       try {
         // Fetch repository details
-        const repoResponse = await axios.get(`http://localhost:8080/repo/${id}`)
+        const repoResponse = await axios.get(`https://reposphere.onrender.com/repo/${id}`)
         // console.log(repoResponse.data);
         setRepository(repoResponse.data)
 
@@ -33,12 +33,12 @@ const RepoDashboard = () => {
         }
 
         // Fetch files
-        const filesResponse = await axios.get(`http://localhost:8080/repo/files/${repoResponse.data?.owner?._id}/${id}`)
+        const filesResponse = await axios.get(`https://reposphere.onrender.com/repo/files/${repoResponse.data?.owner?._id}/${id}`)
         
         setFiles(filesResponse.data)
 
         // Fetch user profile
-        const userResponse = await axios.get(`http://localhost:8080/user/profile/${userId}`)
+        const userResponse = await axios.get(`https://reposphere.onrender.com/user/profile/${userId}`)
         setProfile(userResponse.data.username)
       } catch (error) {
         toast.error("Failed to fetch repository data")
@@ -55,7 +55,7 @@ const RepoDashboard = () => {
     try {
       const userId = localStorage.getItem("userId")
       if (userId) {
-        await axios.delete(`http://localhost:8080/repo/${id}`)
+        await axios.delete(`https://reposphere.onrender.com/repo/${id}`)
         toast.success("Repository deleted successfully")
         navigate("/")
       }

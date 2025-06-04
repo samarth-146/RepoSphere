@@ -22,7 +22,7 @@ const Right_Profile = ({ user }) => {
  const fetchUserStats = async () => {
       try {
         const userId=localStorage.getItem('userId');
-        const response = await axios.get(`http://localhost:8080/user/profile/${userId}`);
+        const response = await axios.get(`https://reposphere.onrender.com/user/profile/${userId}`);
         const userData = response.data;
 
         const repoCount = userData.repositories?.length || 0;
@@ -40,7 +40,7 @@ const Right_Profile = ({ user }) => {
     try {
       const token = localStorage.getItem("token")
       await axios.post(
-        "http://localhost:8080/user/logout",
+        "https://reposphere.onrender.com/user/logout",
         {},
         {
           headers: { Authorization: `Bearer ${token}` },

@@ -19,7 +19,7 @@ const CreateRepository = () => {
     const fetchProfile = async () => {
       try {
         const userId = localStorage.getItem("userId")
-        const user = await axios.get(`http://localhost:8080/user/profile/${userId}`)
+        const user = await axios.get(`https://reposphere.onrender.com/user/profile/${userId}`)
         setUserName(user.data.username)
       } catch (error) {
         toast.error("Failed to fetch user profile")
@@ -36,7 +36,7 @@ const CreateRepository = () => {
       const userId = localStorage.getItem("userId")
       const visibilityValue = visibility ? "public" : "private"
 
-      await axios.post("http://localhost:8080/repo", {
+      await axios.post("https://reposphere.onrender.com/repo", {
         name,
         description,
         owner: userId,

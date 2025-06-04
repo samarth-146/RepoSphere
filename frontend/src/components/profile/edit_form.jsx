@@ -44,7 +44,7 @@ const Edit_Form = () => {
     const fetchUser = async () => {
       try {
         const userId = localStorage.getItem("userId")
-        const response = await axios.get(`http://localhost:8080/user/profile/${userId}`)
+        const response = await axios.get(`https://reposphere.onrender.com/user/profile/${userId}`)
         setUser(response.data)
         setEmail(response.data.email)
       } catch (error) {
@@ -64,7 +64,7 @@ const Edit_Form = () => {
         password: password,
       }
       const userId = localStorage.getItem("userId")
-      await axios.put(`http://localhost:8080/user/${userId}`, data)
+      await axios.put(`https://reposphere.onrender.com/user/${userId}`, data)
 
       toast.success("Profile updated successfully", { position: "top-right" })
       navigate("/profile")

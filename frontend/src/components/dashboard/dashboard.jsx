@@ -13,11 +13,11 @@ const Dashboard = () => {
   useEffect(() => {
     const displayUserRepo = async () => {
       const userId = localStorage.getItem("userId")
-      const response = await axios.get(`http://localhost:8080/repo/all/${userId}`)
+      const response = await axios.get(`https://reposphere.onrender.com/repo/all/${userId}`)
       setRepository(response.data)
     }
     const displayAllRepo = async () => {
-      const response = await axios.get("http://localhost:8080/repo/all")
+      const response = await axios.get("https://reposphere.onrender.com/repo/all")
       const publicRepo = response.data.filter((ele) => ele.visibility == "public")
       setGlobalRepository(publicRepo)
     }

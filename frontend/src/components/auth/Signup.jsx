@@ -27,7 +27,7 @@ const Signup = () => {
         username: username,
       }
 
-      const response = await axios.post("http://localhost:8080/user/signup", data)
+      const response = await axios.post("https://reposphere.onrender.com/user/signup", data)
       const token = response.data.token
       const userId = response.data.id
 

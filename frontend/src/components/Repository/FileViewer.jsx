@@ -21,12 +21,12 @@ const FileViewer = () => {
         const userId = localStorage.getItem("userId")
 
         // Fetch file content
-        const contentResponse = await axios.get(`http://localhost:8080/repo/${userId}/${id}/${filename}`)
+        const contentResponse = await axios.get(`https://reposphere.onrender.com/repo/${userId}/${id}/${filename}`)
         setFileName(contentResponse.data.fileName)
         setFileContent(contentResponse.data.content)
 
         // Fetch repository details for breadcrumb
-        const repoResponse = await axios.get(`http://localhost:8080/repo/${id}`)
+        const repoResponse = await axios.get(`https://reposphere.onrender.com/repo/${id}`)
         setRepository(repoResponse.data)
       } catch (error) {
         toast.error("Failed to fetch file content")
