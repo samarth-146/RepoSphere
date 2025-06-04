@@ -65,13 +65,13 @@ const signup = async (req, res) => {
     }
 }
 
-const logout=(req,res)=>{
-    const token=req.header('Authorization')?.split(' ')[1];
-    if(!token){
-        return res.status(400).json({message:"No token is provided"});
+const logout = (req, res) => {
+    const token = req.header('Authorization')?.split(' ')[1];
+    if (!token) {
+        return res.status(400).json({ message: "No token is provided" });
     }
     addToBlackList(token);
-    res.status(200).json({message:"Logged out successfully"});
+    res.status(200).json({ message: "Logged out successfully" });
 }
 
 const addProfilePic = async (req, res) => {
@@ -97,7 +97,7 @@ const getprofilePic = async (req, res) => {
     if (!user) {
         return res.status(404).json({ message: "User doesn't exist" });
     }
-    const profilepic={url:user.image.url,filename:user.image.filename};
+    const profilepic = { url: user.image.url, filename: user.image.filename };
     res.status(200).json(profilepic);
 }
 
@@ -117,11 +117,14 @@ const getProfile = async (req, res) => {
 const updateProfile = async (req, res) => {
     try {
         const userId = req.params.id;
-        console.log(userId);
         let { email, password } = req.body;
         const user = await User.findById(userId);
         if (!user) {
             return res.status(404).json("User doesn't exist");
+        }
+        const checkEmailExist=await User.find({email:email});
+        if(checkEmailExist){
+            return res.status(400).json({message:"Email already exists"});
         }
         if (email && password) {
             password = await bcrypt.hash(password, 10);
@@ -129,9 +132,6 @@ const updateProfile = async (req, res) => {
             res.status(200).json({ message: "Data is updated successfully", updatedUser });
         }
         else if (email) {
-            console.log("Email is called");
-            console.log(user);
-
             const updatedUser = await User.updateOne({ email: user.email }, { email: email });
             res.status(200).json({ message: "Data is updated successfully", updatedUser });
         }
@@ -149,7 +149,13 @@ const updateProfile = async (req, res) => {
 const getStarredRepository = async (req, res) => {
     try {
         const userId = req.params.id;
-        const user = await User.findById(userId).populate("starred_repositories");
+        const user = await User.findById(userId).populate({
+            path: "starred_repositories",
+            populate: {
+                path: "owner",
+                model: "User"
+            }
+        });
         if (!user) {
             return res.status(404).json("User doesn't exist");
         }

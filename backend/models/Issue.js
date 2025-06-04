@@ -20,12 +20,6 @@ const issueSchema = new Schema({
         ref: "Repository",
         required: true
     },
-    // user:
-    // {
-    //     type: Schema.Types.ObjectId,
-    //     ref: "User",
-    //     required: true
-    // }
 });
 
 const Issue = mongoose.model("Issue", issueSchema);

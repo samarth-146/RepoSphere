@@ -2,7 +2,7 @@ const mongoose = require('mongoose');
 const Repository = require('../models/Repository');
 const User = require('../models/User');
 const Issue = require('../models/Issue');
-const {S3,S3_BUCKET}=require('../config/aws-config');
+const { S3, S3_BUCKET } = require('../config/aws-config');
 
 const getAllRepositories = async (req, res) => {
     try {
@@ -18,6 +18,7 @@ const getAllRepositories = async (req, res) => {
 
 const getRepoContent = async (req, res) => {
     const { userId, repoId } = req.params;
+
     const user = await User.findById(userId);
     const repo = await Repository.findById(repoId);
 
@@ -29,80 +30,120 @@ const getRepoContent = async (req, res) => {
     }
 
     try {
-        const params = {
-            Bucket: S3_BUCKET,
-            Prefix: `${user.email}/${repo.name}/commits/`,
-        };
+        const prefix = `${user.email}/${repo.name}/commits/`;
+        const params = { Bucket: S3_BUCKET, Prefix: prefix };
         const data = await S3.listObjectsV2(params).promise();
 
         if (!data.Contents || data.Contents.length === 0) {
-            return res.json([]); // No commits found
+            return res.json([]); 
         }
 
-        const commits = {};
-        const latestFiles = new Map(); // Map to store the latest version of each file
+        const commitsMeta = {}; 
+        const fileVersions = new Map(); 
 
         for (const item of data.Contents) {
-            const fileKey = item.Key;
-            const parts = fileKey.split('/');
-            const commitId = parts[parts.length - 2]; // Extract commit ID
-            const fileName = parts.pop();
-
-            if (!commits[commitId]) {
-                commits[commitId] = {
-                    id: commitId,
-                    files: [],
-                    commitMessage: 'No commit message found', // Default
-                    date: null,
-                };
-            }
-
-            if (fileName === 'commit.json') {
+            if (item.Key.endsWith("commit.json")) {
+                const parts = item.Key.split('/');
+                const commitId = parts[parts.length - 2];
                 try {
-                    // Fetch commit.json to get the commit message
-                    const commitParams = { Bucket: S3_BUCKET, Key: fileKey };
-                    const commitData = await S3.getObject(commitParams).promise();
-                    const commitJson = JSON.parse(commitData.Body.toString('utf-8'));
-
-                    commits[commitId].commitMessage = commitJson.message || 'No commit message';
-                    commits[commitId].date = commitJson.date;
+                    const commitObj = await S3.getObject({
+                        Bucket: S3_BUCKET,
+                        Key: item.Key
+                    }).promise();
+                    const metadata = JSON.parse(commitObj.Body.toString('utf-8'));
+                    commitsMeta[commitId] = {
+                        message: metadata.message || "No commit message",
+                        date: metadata.date || "Unknown date"
+                    };
                 } catch (error) {
-                    console.error(`Error fetching commit.json for commit ${commitId}:`, error);
+                    console.error(`Error reading commit.json for ${item.Key}`, error);
                 }
+            }
+        }
+
+        for (const item of data.Contents) {
+            if (item.Key.endsWith("commit.json")) continue;
+
+            const parts = item.Key.split('/');
+            const commitId = parts[parts.length - 2];
+            const fileName = parts[parts.length - 1];
+            const lastModified = new Date(item.LastModified);
+
+            const existing = fileVersions.get(fileName);
+            if (!existing || lastModified > new Date(existing.lastModified)) {
+                fileVersions.set(fileName, {
+                    fileName,
+                    key: item.Key,
+                    lastModified,
+                    size: item.Size,
+                    commitId
+                });
+            }
+        }
+
+        const fileOriginMap = new Map();
+
+        for (const item of data.Contents) {
+            if (item.Key.endsWith("commit.json")) continue;
+
+            const parts = item.Key.split('/');
+            const commitId = parts[parts.length - 2];
+            const fileName = parts[parts.length - 1];
+            const lastModified = new Date(item.LastModified);
+
+            if (!fileOriginMap.has(fileName)) {
+                fileOriginMap.set(fileName, {
+                    commitId,
+                    message: commitsMeta[commitId]?.message || 'No commit message',
+                    date: commitsMeta[commitId]?.date || 'Unknown date'
+                });
             } else {
-                // If the file is newer, update the map (keep the most recent version)
-                if (!latestFiles.has(fileName) || new Date(item.LastModified) > new Date(latestFiles.get(fileName).lastModified)) {
-                    latestFiles.set(fileName, {
-                        fileName,
-                        key: fileKey,
-                        lastModified: item.LastModified,
-                        size: item.Size,
-                        commitId: commitId, // Store which commit the file belongs to
-                        commitMessage: commits[commitId]?.commitMessage || "No commit message",
-                        commitDate: commits[commitId]?.date || "Unknown date"
+                const existing = fileOriginMap.get(fileName);
+                if (lastModified < new Date(fileVersions.get(fileName).lastModified)) {
+                    fileOriginMap.set(fileName, {
+                        commitId,
+                        message: commitsMeta[commitId]?.message || 'No commit message',
+                        date: commitsMeta[commitId]?.date || 'Unknown date'
                     });
                 }
             }
         }
 
-        res.json([...latestFiles.values()]);
+        const result = [];
+        for (const [fileName, fileInfo] of fileVersions.entries()) {
+            const origin = fileOriginMap.get(fileName);
+            result.push({
+                fileName,
+                key: fileInfo.key,
+                lastModified: fileInfo.lastModified,
+                size: fileInfo.size,
+                commitId: origin.commitId,
+                commitMessage: origin.message,
+                commitDate: origin.date
+            });
+        }
+
+        return res.json(result);
     } catch (e) {
         console.error(e);
-        res.status(500).json({ message: "Internal Server Error" });
+        return res.status(500).json({ message: "Internal Server Error" });
     }
 };
 
 
+
 const fetchFileContent = async (req, res) => {
     const { userId, repoId, fileName } = req.params;
-    const user = await User.find({_id:userId});
-    const repo = await Repository.find({_id:repoId});
+
     try {
+        const user = await User.findById(userId);
+        const repo = await Repository.findById(repoId);
 
-        if (!user[0]) return res.status(404).json({ message: "User doesn't exist" });
-        if (!repo[0]) return res.status(404).json({ message: "Repository doesn't exist" });
+        if (!user) return res.status(404).json({ message: "User doesn't exist" });
+        if (!repo) return res.status(404).json({ message: "Repository doesn't exist" });
 
-        const params = { Bucket: S3_BUCKET, Prefix: `${user[0].email}/${repo[0].name}/commits/` };
+        const prefix = `${user.email}/${repo.name}/commits/`;
+        const params = { Bucket: S3_BUCKET, Prefix: prefix };
         const data = await S3.listObjectsV2(params).promise();
 
         if (!data.Contents || data.Contents.length === 0) {
@@ -118,23 +159,48 @@ const fetchFileContent = async (req, res) => {
             }
             commitFolders.get(commitId).push(item);
         }
-        const latestCommitId = [...commitFolders.keys()].pop();
-        const latestCommitFiles = commitFolders.get(latestCommitId);
 
-        const fileObject = latestCommitFiles.find(file => file.Key.endsWith(`/${fileName}`));
+        let latestFile = null;
 
-        if (!fileObject) {
-            return res.status(404).json({ message: "File not found in the latest commit" });
+        for (const [commitId, files] of commitFolders.entries()) {
+            for (const file of files) {
+                if (file.Key.endsWith(`/${fileName}`)) {
+                    if (
+                        !latestFile ||
+                        new Date(file.LastModified) > new Date(latestFile.LastModified)
+                    ) {
+                        latestFile = { ...file, commitId };
+                    }
+                }
+            }
         }
 
-        const fileParams = { Bucket: S3_BUCKET, Key: fileObject.Key };
+        if (!latestFile) {
+            return res.status(404).json({ message: "File not found in any commit" });
+        }
+
+        const fileParams = {
+            Bucket: S3_BUCKET,
+            Key: latestFile.Key
+        };
         const fileData = await S3.getObject(fileParams).promise();
         const fileContent = fileData.Body.toString('utf-8');
 
-        res.json({ fileName, content: fileContent, commitId: latestCommitId });
+        const metadataKey = `${user.email}/${repo.name}/commits/${latestFile.commitId}/commit.json`;
+        const metadataData = await S3.getObject({ Bucket: S3_BUCKET, Key: metadataKey }).promise();
+        const metadata = JSON.parse(metadataData.Body.toString('utf-8'));
+
+        return res.json({
+            fileName,
+            content: fileContent,
+            commitId: latestFile.commitId,
+            message: metadata.message,
+            date: metadata.date
+        });
+
     } catch (error) {
-        console.error(error);
-        res.status(500).json({ message: "Internal Server Error" });
+        console.error("Error fetching file content:", error);
+        return res.status(500).json({ message: "Internal Server Error" });
     }
 };
 
@@ -172,7 +238,6 @@ const createRepository = async (req, res) => {
     }
 }
 
-//Get all repo for a user
 const userRepositories = async (req, res) => {
     try {
         const userId = req.params.uid;
@@ -187,7 +252,6 @@ const userRepositories = async (req, res) => {
     }
 };
 
-//Get particular repo by repoid
 const userRepository = async (req, res) => {
     try {
         const repoId = req.params.id;
@@ -238,7 +302,7 @@ const starredRepository = async (req, res) => {
 };
 
 const removeStarredRepository = async (req, res) => {
-    try{
+    try {
         const repoId = req.params.repoid;
         const userId = req.params.userid;
         const repo = await Repository.findById(repoId);
@@ -246,10 +310,10 @@ const removeStarredRepository = async (req, res) => {
         if (!repo || !user) {
             return res.status(404).json({ message: "Repository or User doesn't exist" });
         }
-        user.starred_repositories=user.starred_repositories.filter((ele)=>ele._id!=repoId);
+        user.starred_repositories = user.starred_repositories.filter((ele) => ele._id != repoId);
         await user.save();
         res.status(200).json("Repository is unmarked");
-    }catch(e){
+    } catch (e) {
         console.error(e);
         res.status(500).json({ message: "Internal Server Error" });
     }

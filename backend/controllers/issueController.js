@@ -1,4 +1,3 @@
-//Create a new issue
 const mongoose=require('mongoose');
 const Issue=require('../models/Issue');
 const Repository=require('../models/Repository');
@@ -26,7 +25,6 @@ const createIssue=async(req,res)=>{
     }
 }
 
-//All the issues associated with the repo
 const getAllIssue=async(req,res)=>{
     try{
         const repoId=req.params.id;
@@ -41,7 +39,6 @@ const getAllIssue=async(req,res)=>{
     }
 }
 
-//Single Issue
 const getIssueUsingId=async(req,res)=>{
     try{
         const issueId=req.params.id;
@@ -56,7 +53,6 @@ const getIssueUsingId=async(req,res)=>{
     }
 }
 
-//Update issue
 const updateIssue=async(req,res)=>{
     try{
         const {title,description}=req.body;
@@ -82,7 +78,6 @@ const updateIssue=async(req,res)=>{
     }
 }
 
-//Delete issue
 const deleteIssue=async(req,res)=>{
     try{
         const issueId=req.params.id;

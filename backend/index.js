@@ -4,12 +4,13 @@ const Init = require('./controllers/init');
 const Add = require('./controllers/add');
 const Commit = require('./controllers/commit');
 const Push = require('./controllers/push');
+const Clone= require('./controllers/clone');
 const server=require('./server');
 
 yargs(hideBin(process.argv))
 .command('start','Start the server',{},server)
     .command(
-        'init <email> <repository>',
+        'init <email> <password> <repository>',
         'Initialize the repository',
         (yargs) => {
             yargs
@@ -17,13 +18,17 @@ yargs(hideBin(process.argv))
                     describe: 'User email',
                     type: 'string',
                 })
+                .positional('password',{
+                    describe:"User password",
+                    type:"string"
+                })
                 .positional('repository', {
                     describe: 'Repository name',
                     type: 'string',
                 });
         },
         (argv) => {
-            Init(argv.email, argv.repository);
+            Init(argv.email, argv.password, argv.repository);
         }
     )
     .command(
@@ -58,6 +63,28 @@ yargs(hideBin(process.argv))
         {},
         () => {
             Push();
+        }
+    )
+    .command(
+        'clone <email> <password> <repositoryName>',
+        'Clone the repository',
+        (yargs)=>{
+            yargs
+                .positional('email', {
+                    describe: 'User email',
+                    type: 'string',
+                })
+                .positional('password',{
+                    describe:"User password",
+                    type:"string"
+                })
+                .positional('repositoryName', {
+                    describe: 'Repository name',
+                    type: 'string',
+                });
+        },
+        (argv) => {
+            Clone(argv.email, argv.password, argv.repositoryName);
         }
     )
     .demandCommand(1)

@@ -8,7 +8,6 @@ async function Push() {
     const pushedCommitsPath = path.join(repoPath, 'pushed_commits.json');
 
     try {
-        // Load repository config
         const config = JSON.parse(await fs.readFile(path.join(repoPath, 'config.json')));
         const { email, repository } = config;
 
@@ -17,25 +16,20 @@ async function Push() {
             return;
         }
 
-        // Get all commit directories
         let commitDirs = await fs.readdir(commitsPath);
         if (commitDirs.length === 0) {
             console.log('No commits found to push.');
             return;
         }
 
-        // Load previously pushed commits
         let pushedCommits = new Set();
         try {
-            const pushedCommitsData = await fs.readFile(pushedCommitsPath, 'utf-8');
-            pushedCommits = new Set(JSON.parse(pushedCommitsData));
+            const pushedData = await fs.readFile(pushedCommitsPath, 'utf-8');
+            pushedCommits = new Set(JSON.parse(pushedData));
         } catch (err) {
-            // If file doesn't exist, assume no commits were pushed before
         }
 
-        // Filter out already pushed commits
         commitDirs = commitDirs.filter(commit => !pushedCommits.has(commit));
-
         if (commitDirs.length === 0) {
             console.log('No new commits to push.');
             return;
@@ -58,11 +52,9 @@ async function Push() {
                 await S3.upload(params).promise();
             }
 
-            // Mark this commit as pushed
             pushedCommits.add(commitId);
         }
 
-        // Save the updated pushed commits list
         await fs.writeFile(pushedCommitsPath, JSON.stringify([...pushedCommits]));
 
         console.log('Successfully pushed all new commits.');

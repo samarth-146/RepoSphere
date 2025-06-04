@@ -8,33 +8,33 @@ async function Commit(message) {
     const stagingPath = path.join(repoPath, 'staging');
 
     try {
-        const id = uuidv4(); // Generate a unique commit ID
+        const id = uuidv4(); 
         const idPath = path.join(commitPath, id);
 
-        // Create a new commit directory
         await fs.mkdir(idPath, { recursive: true });
 
-        // Get all files in the staging area
         const files = await fs.readdir(stagingPath);
         if (files.length === 0) {
             console.log("No files in staging area to commit.");
             return;
         }
-        console.log('Committing files:', files);
-
         for (let file of files) {
             const filePath = path.join(stagingPath, file);
             const commitFilePath = path.join(idPath, file);
 
-            // Move (not just copy) the file from staging to commit directory
-            await fs.rename(filePath, commitFilePath);
+            await fs.copyFile(filePath, commitFilePath);
         }
 
-        // Write the commit metadata
+        const metadata = {
+            message,
+            date: new Date().toISOString(),
+            files: files
+        };
         await fs.writeFile(
             path.join(idPath, 'commit.json'),
-            JSON.stringify({ message: message, date: new Date().toISOString() })
+            JSON.stringify(metadata, null, 2)
         );
+
 
         console.log(`Commit "${id}" created successfully with message: "${message}"`);
     } catch (e) {

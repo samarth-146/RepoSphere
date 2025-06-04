@@ -4,13 +4,14 @@ const User=require('../models/User');
 const Repository=require('../models/Repository');
 const dotenv = require('dotenv');
 const connectDB=require('../db');
-const mongoose=require('mongoose')
+const mongoose=require('mongoose');
+const bcrypt=require('bcrypt');
 
 dotenv.config();
 
-async function Init(email, repositoryName) {
-    if (!email || !repositoryName) {
-        console.error('Email and repository name are required to initialize.');
+async function Init(email,password, repositoryName) {
+    if (!email || !repositoryName || !password) {
+        console.error('Email,password and repository name are required to initialize.');
         return;
     }
     await connectDB();
@@ -18,6 +19,12 @@ async function Init(email, repositoryName) {
     const user=await User.findOne({email:email});
     if(!user){
         console.error("User doesn't exist");
+        await mongoose.disconnect();
+        return;
+    }
+    const isMatch=await bcrypt.compare(password,user.password);
+    if(!isMatch){
+        console.error("Incorrect Password");
         await mongoose.disconnect();
         return;
     }

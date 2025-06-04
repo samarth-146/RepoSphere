@@ -25,19 +25,11 @@ const Navbar = () => {
             <div className="p-2 bg-gradient-to-r from-teal-500 to-cyan-500 rounded-lg">
               <Database className="h-6 w-6 text-white" />
             </div>
-            <span className="text-2xl font-bold bg-gradient-to-r from-teal-400 to-cyan-400 bg-clip-text text-transparent">
-              RepoSphere
-            </span>
+            <Link to='/' className="text-2xl font-bold bg-gradient-to-r from-teal-400 to-cyan-400 bg-clip-text text-transparent">RepoSphere</Link>
+            
           </div>
         </div>
         <div className="flex items-center space-x-6">
-          <Link
-            to="/create"
-            className="flex items-center space-x-2 bg-gradient-to-r from-teal-600 to-cyan-600 hover:from-teal-700 hover:to-cyan-700 text-white px-4 py-2 rounded-lg transition-all duration-200 shadow-md hover:shadow-lg"
-          >
-            <Plus className="h-4 w-4" />
-            <span className="font-medium">New</span>
-          </Link>
           <Link to="/profile" className="relative">
             <img
               src={profile?.url || "/placeholder.svg?height=32&width=32"}

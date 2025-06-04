@@ -49,3 +49,7 @@ coverage/
 # System files
 .DS_Store
 Thumbs.db
+
+.Sphere
+hello.txt
+prac.txt
